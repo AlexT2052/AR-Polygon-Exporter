@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using System;
 
 public class SettingsMenu : MonoBehaviour
 {
@@ -12,6 +14,9 @@ public class SettingsMenu : MonoBehaviour
 
     [SerializeField]
     MeshGenerator meshGenerator;
+
+    [SerializeField]
+    Text enableMeasurementsText;
 
     public void DisableBoolAnimator(Animator anim)
     {
@@ -50,5 +55,20 @@ public class SettingsMenu : MonoBehaviour
         {
             drawMeasurements.decimalCount--;
         }
+    }
+
+    public void toggleMeasurements()
+    {
+        if (meshGenerator.drawMeasurements)
+        {
+            meshGenerator.drawMeasurements = false;
+            enableMeasurementsText.text = "Enable Measurements";
+        }
+        else
+        {
+            meshGenerator.drawMeasurements = true;
+            enableMeasurementsText.text = "Disable Measurements";
+        }
+
     }
 }

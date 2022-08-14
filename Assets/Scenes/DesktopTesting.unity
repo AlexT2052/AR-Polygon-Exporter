@@ -240,8 +240,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   serializableList:
     list: []
+  drawMeasurementsClass: {fileID: 0}
   placedPrefab: {fileID: 3459152357157617964, guid: 5cad0fe9d6331f945b2798a5225e2165, type: 3}
   groundPlane: {fileID: 2120760255}
+  squareFootageText: {fileID: 0}
   collisionDetectedMaterial: {fileID: 2100000, guid: bc99de72cd8ba044b9df5acb138b8d5b, type: 2}
   m_RaycastManager: {fileID: 0}
 --- !u!23 &481455427
@@ -561,7 +563,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2120760255}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.88, y: -0.28, z: -0.01}
+  m_LocalPosition: {x: 5.12, y: -0.28, z: -0.01}
   m_LocalScale: {x: 7.8210244, y: 0.4481779, z: 3.7842224}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Events;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
@@ -47,6 +48,9 @@ public class MeshGenerator : MonoBehaviour
     [SerializeField]
     GameObject groundPlane;
 
+    [SerializeField]
+    Text squareFootageText;
+
     //[SerializeField]
     private Camera m_Camera;
 
@@ -67,7 +71,7 @@ public class MeshGenerator : MonoBehaviour
         vectorList = new List<Vector3>();
         placementIndicators = new List<GameObject>();
         disableRaycasts = false;
-        drawMeasurements = !isOnPc;
+        drawMeasurements = false;
 
 
         line = new GameObject();
@@ -95,7 +99,6 @@ public class MeshGenerator : MonoBehaviour
                 Ray ray = m_Camera.ScreenPointToRay(Input.mousePosition);
                 RaycastHit[] raycastHits = Physics.RaycastAll(ray, 20);
                 Vector3 groundHit = default;
-                //PlacementIndicator selectedIndicator = default;
 
                 if (raycastHits.Length > 0)
                 {
@@ -140,7 +143,7 @@ public class MeshGenerator : MonoBehaviour
 
                     if (hitGround)
                     {
-                        //groundHit.y = 0.01f; // To make line renderer not clip into ground and look weird
+                        groundHit.y = 0.01f; // To make line renderer not clip into ground and look weird
 
                         if (firstClick && hitIndicator) // Set to the repositioning mode to essentially disable everything else while still holding down.
                         {
@@ -156,6 +159,10 @@ public class MeshGenerator : MonoBehaviour
                             if (polygonFinished && truePolygon)
                             {
                                 DrawMesh();
+                                if (!isOnPc)
+                                {
+                                    squareFootageText.text = Util.superficieOfIrregularPolygon(vectorList) + " m²";
+                                }
                             }
                         }
                         else if (!polygonFinished) 
@@ -185,6 +192,11 @@ public class MeshGenerator : MonoBehaviour
                                     polygonFinished = true;
                                     lr.loop = true;
                                     DrawMesh();
+                                    squareFootageText.enabled = true;
+                                    if (!isOnPc)
+                                    {
+                                        squareFootageText.text = Util.superficieOfIrregularPolygon(vectorList) + " m²";
+                                    }
                                     Debug.Log(Util.superficieOfIrregularPolygon(vectorList));
                                 }
                             }
@@ -215,7 +227,10 @@ public class MeshGenerator : MonoBehaviour
 
         if (drawMeasurements)
         {
-            drawMeasurementsClass.Draw(vectorList);
+            drawMeasurementsClass.Draw(vectorList, polygonFinished);
+        } else if (!isOnPc)
+        {
+            drawMeasurementsClass.remove();
         }
     }
 

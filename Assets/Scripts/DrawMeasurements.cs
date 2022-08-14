@@ -19,12 +19,12 @@ public class DrawMeasurements : MonoBehaviour
         //vectorList = new List<Vector2>();
     }
 
-    public void Draw(List<Vector3> vectorList)
+    public void Draw(List<Vector3> vectorList, bool polygonFinished)
     {
         
-        if (vectorList.Count >= 2 && textMeshes.Count != (vectorList.Count - 1))
+        if (!polygonFinished && vectorList.Count >= 2 && textMeshes.Count != (vectorList.Count - 1))
         {
-            for (int i = textMeshes.Count; i < vectorList.Count; i++)
+            for (int i = textMeshes.Count; i < vectorList.Count - 1; i++)
             {
                 textMeshes.Add(Instantiate(distanceTextPrefab, Vector3.Lerp(vectorList[vectorList.Count - 2], vectorList[vectorList.Count - 1], 0.5f), Quaternion.identity));
             }
@@ -39,6 +39,15 @@ public class DrawMeasurements : MonoBehaviour
             textMeshes[i].transform.Rotate(0, 90, 0);
             textMeshes[i].transform.Translate(new Vector3(0, 0.05f, 0));
             textMeshes[i].text = distanceBetweenBoth.ToString() + " m";
+        }
+    }
+
+    public void remove()
+    {
+        textMeshes.Clear();
+        foreach(TextMesh tM in textMeshes)
+        {
+            Destroy(tM);
         }
     }
 
