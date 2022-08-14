@@ -10,6 +10,16 @@ public static class Util
         return a.x * b.y - a.y * b.x;
     } 
 
+    public static Vector2 To3DVector2(Vector3 vec3)
+    {
+        return new Vector2(vec3.x, vec3.z);
+    }
+
+    public static Vector2 ToVector3 (Vector3 vec3)
+    {
+        return new Vector2(vec3.x, vec3.z);
+    }
+
     public static T GetItemFromCircularArray<T>(T[] array, int index)
     {
         if(index >= array.Length)

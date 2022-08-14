@@ -32,8 +32,14 @@ public class MeshGenerator : MonoBehaviour
     bool polygonFinished = false;
     bool truePolygon = false;
     bool repositioning = false;
+    bool isOnPc = false;
     public bool disableRaycasts
     { get; set; }
+    public bool drawMeasurements
+    { get; set; }
+
+    [SerializeField]
+    DrawMeasurements drawMeasurementsClass;
 
     [SerializeField]
     GameObject placedPrefab;
@@ -53,6 +59,7 @@ public class MeshGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+        isOnPc = SystemInfo.deviceType == DeviceType.Desktop;
         //groundPlane = TrackableType.PlaneWithinPolygon;
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
@@ -60,6 +67,8 @@ public class MeshGenerator : MonoBehaviour
         vectorList = new List<Vector3>();
         placementIndicators = new List<GameObject>();
         disableRaycasts = false;
+        drawMeasurements = !isOnPc;
+
 
         line = new GameObject();
         lr = line.AddComponent<LineRenderer>();
@@ -86,7 +95,7 @@ public class MeshGenerator : MonoBehaviour
                 Ray ray = m_Camera.ScreenPointToRay(Input.mousePosition);
                 RaycastHit[] raycastHits = Physics.RaycastAll(ray, 20);
                 Vector3 groundHit = default;
-                PlacementIndicator selectedIndicator = default;
+                //PlacementIndicator selectedIndicator = default;
 
                 if (raycastHits.Length > 0)
                 {
@@ -131,14 +140,14 @@ public class MeshGenerator : MonoBehaviour
 
                     if (hitGround)
                     {
-                        groundHit.y = 0.01f;
+                        //groundHit.y = 0.01f; // To make line renderer not clip into ground and look weird
 
-                        if (firstClick && hitIndicator)
+                        if (firstClick && hitIndicator) // Set to the repositioning mode to essentially disable everything else while still holding down.
                         {
                             repositioning = true;
                         }
 
-                        if (repositioning)
+                        if (repositioning) // reposition if in repositioning mode
                         {
                             placementIndicators[hitIndicatorIndex].transform.position = groundHit;
                             vectorList[hitIndicatorIndex] = groundHit;
@@ -149,7 +158,7 @@ public class MeshGenerator : MonoBehaviour
                                 DrawMesh();
                             }
                         }
-                        else if (polygonFinished != true)
+                        else if (!polygonFinished) 
                         {
                             isNewSegmentTrue();
 
@@ -165,11 +174,10 @@ public class MeshGenerator : MonoBehaviour
                                 placementIndicators[placementIndicators.Count - 1].transform.position = groundHit;
                             }
 
-                            if (vectorList.Count > 4 && Vector3.Distance(groundHit, vectorList[0]) < 0.1f)
+                            if (vectorList.Count >= 4 && Vector3.Distance(groundHit, vectorList[0]) < 0.1f)
                             {
                                 if (truePolygon)
                                 {
-                                    //vectorList[vectorList.Count - 1] = vectorList[0];
                                     vectorList.RemoveAt(vectorList.Count - 1);
                                     Destroy(placementIndicators[placementIndicators.Count - 1]);
                                     placementIndicators.RemoveAt(placementIndicators.Count - 1);
@@ -178,7 +186,6 @@ public class MeshGenerator : MonoBehaviour
                                     lr.loop = true;
                                     DrawMesh();
                                     Debug.Log(Util.superficieOfIrregularPolygon(vectorList));
-                                    //vectorList.RemoveAt(vectorList.Count - 1);
                                 }
                             }
                         }
@@ -204,6 +211,11 @@ public class MeshGenerator : MonoBehaviour
                 //placementIndicators[0].GetComponent<Renderer>().material.color = Color.red;
                 //Debug.Log(superficieOfIrregularPolygon())
             }
+        }
+
+        if (drawMeasurements)
+        {
+            drawMeasurementsClass.Draw(vectorList);
         }
     }
 
