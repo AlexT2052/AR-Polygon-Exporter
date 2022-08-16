@@ -15,18 +15,9 @@ public static class SavePoints
 {
     public static string directory = "/SaveData/";
     public static string fileName = "PolygonPionts.txt";
-    [SerializeField]
-    //public static SerializableListV2<Vector2> listv2;
-    //public static SerializableListV2<Vector2> listv2;
 
     public static void Save(SerializableList<Vector2> list)
     {
-        //SerializableListV2<Vector2> listv2 = new SerializableListV2<Vector2
-        /*foreach (Vector3 v in list)
-        {
-           listv2.list2.Add(new Vector2(v.x, v.z));
-        }*/
-
         string dir = Application.persistentDataPath + directory;
 
         if (!Directory.Exists(dir))
@@ -37,19 +28,6 @@ public static class SavePoints
         string json = JsonUtility.ToJson(list);
         File.WriteAllText(dir + fileName, json);
     }
-    /*
-    public static void Save(Vector3 list)
-    {
-        string dir = Application.persistentDataPath + directory;
-
-        if (!Directory.Exists(dir))
-        {
-            Directory.CreateDirectory(dir);
-        }
-
-        string json = JsonUtility.ToJson(list);
-        File.WriteAllText(dir + fileName, json);
-    }*/
 
     public static void Save(Vector3[] list)
     {

@@ -43,10 +43,10 @@ public class MeshGenerator : MonoBehaviour
     DrawMeasurements drawMeasurementsClass;
 
     [SerializeField]
-    GameObject placedPrefab;
+    GameObject placedPrefab; // PlacementIndicator prefab
 
     [SerializeField]
-    GameObject groundPlane;
+    GameObject groundPlane; // Ground plane box for PC Testing
 
     [SerializeField]
     Text squareFootageText;
@@ -60,11 +60,10 @@ public class MeshGenerator : MonoBehaviour
     [SerializeField]
     ARRaycastManager m_RaycastManager;
 
-    // Start is called before the first frame update
+    // Awake is called before the first frame update
     void Awake()
     {
         isOnPc = SystemInfo.deviceType == DeviceType.Desktop;
-        //groundPlane = TrackableType.PlaneWithinPolygon;
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
         m_Camera = Camera.main;
@@ -72,7 +71,6 @@ public class MeshGenerator : MonoBehaviour
         placementIndicators = new List<GameObject>();
         disableRaycasts = false;
         drawMeasurements = false;
-
 
         line = new GameObject();
         lr = line.AddComponent<LineRenderer>();
@@ -86,7 +84,7 @@ public class MeshGenerator : MonoBehaviour
     // Update is called once per frame
     protected void Update()
     {
-        if (!disableRaycasts)
+        if (!disableRaycasts) // Doesn't do anything if raycast are disabled (we're in the settings menu)
         {
             bool firstClick = false;
             if (Input.GetMouseButtonDown(0))
@@ -97,16 +95,15 @@ public class MeshGenerator : MonoBehaviour
             if (Input.GetMouseButton(0))
             {
                 Ray ray = m_Camera.ScreenPointToRay(Input.mousePosition);
-                RaycastHit[] raycastHits = Physics.RaycastAll(ray, 20);
+                RaycastHit[] raycastHits = Physics.RaycastAll(ray, 20); // Gets array of all objects hit by raycast that doesn't stop.
                 Vector3 groundHit = default;
 
-                if (raycastHits.Length > 0)
+                if (raycastHits.Length > 0) // Move on if we hit anything
                 {
                     bool hitGround = false;
                     bool hitIndicator = false;
-                    bool isOnPc = SystemInfo.deviceType == DeviceType.Desktop;
 
-                    if (!isOnPc)
+                    if (!isOnPc) // Way of doing different raycasts if not just testing on desktop (because ground is TrackableType.PlaneWithinPolygon)
                     {
                         if (m_RaycastManager.Raycast(Input.mousePosition, s_Hits, TrackableType.PlaneWithinPolygon))
                         {
@@ -115,7 +112,7 @@ public class MeshGenerator : MonoBehaviour
                         }
                     }
 
-                    foreach (RaycastHit rh in raycastHits)
+                    foreach (RaycastHit rh in raycastHits) // Loops through the hits and finds out if we hit the ground and/or placement indicator and where
                     {
                         if (isOnPc)
                         {
@@ -143,7 +140,7 @@ public class MeshGenerator : MonoBehaviour
 
                     if (hitGround)
                     {
-                        groundHit.y = 0.01f; // To make line renderer not clip into ground and look weird
+                        // groundHit.y = 0.01f; // To make line renderer not clip into ground and look weird
 
                         if (firstClick && hitIndicator) // Set to the repositioning mode to essentially disable everything else while still holding down.
                         {
@@ -165,25 +162,25 @@ public class MeshGenerator : MonoBehaviour
                                 }
                             }
                         }
-                        else if (!polygonFinished) 
+                        else if (!polygonFinished) // Unable to make any new points if the polygon is finished
                         {
                             isNewSegmentTrue();
 
-                            if (firstClick)
+                            if (firstClick) // Add point
                             {
                                 vectorList.Add(groundHit);
                                 placementIndicators.Add(Instantiate(placedPrefab, groundHit, Quaternion.identity));
                                 lr.positionCount = vectorList.Count;
                             }
-                            else
+                            else // Reposition
                             {
                                 vectorList[vectorList.Count - 1] = groundHit;
                                 placementIndicators[placementIndicators.Count - 1].transform.position = groundHit;
                             }
 
-                            if (vectorList.Count >= 4 && Vector3.Distance(groundHit, vectorList[0]) < 0.1f)
+                            if (vectorList.Count >= 4 && Vector3.Distance(groundHit, vectorList[0]) < 0.1f) // Detect if it should snap to first point and complete polygon
                             {
-                                if (truePolygon)
+                                if (truePolygon) // Make sure the polygon isn't self intersecting
                                 {
                                     vectorList.RemoveAt(vectorList.Count - 1);
                                     Destroy(placementIndicators[placementIndicators.Count - 1]);
@@ -203,7 +200,7 @@ public class MeshGenerator : MonoBehaviour
                         }
                     }
 
-                    DrawLines();
+                    DrawLines(); // Draw Line Renderer between all points
                 }
             }
 
@@ -219,9 +216,6 @@ public class MeshGenerator : MonoBehaviour
                 {
                     placementIndicators[i].GetComponent<Outline>().OutlineColor = i == 0 ? Color.red : Color.cyan;
                 }
-
-                //placementIndicators[0].GetComponent<Renderer>().material.color = Color.red;
-                //Debug.Log(superficieOfIrregularPolygon())
             }
         }
 
@@ -280,8 +274,7 @@ public class MeshGenerator : MonoBehaviour
     }
 
 
-    // Detect if polygon is self intersecting
-    private bool isNewSegmentTrue()
+    private bool isNewSegmentTrue()     // Detect if polygon is self intersecting (a bit less intesive than full polygon)
     {
         int listLength = vectorList.Count;
         if (vectorList.Count >= 4)
@@ -304,7 +297,7 @@ public class MeshGenerator : MonoBehaviour
         }
     }
 
-    private bool isFullPolygonTrue()
+    private bool isFullPolygonTrue()    // Detect if polygon is self intersecting (full polygon check)
     {
         int listLength = vectorList.Count;
 
@@ -334,18 +327,16 @@ public class MeshGenerator : MonoBehaviour
         }
     }
 
-    private void saveVector2s()
+    private void saveVector2s() // Helper method for saving the vector2 list
     {
         serializableList.list.Clear();
 
         if (polygonFinished)
         {
-            //vectorList.RemoveAt(vectorList.Count - 1);
             foreach (Vector3 v3 in vectorList)
             {
                 serializableList.list.Add(new Vector2(v3.x, v3.z));
             }
-            //serializableList.list.RemoveAt(serializableList.list.Count - 1);
             SavePoints.Save(serializableList);
         }
     }
